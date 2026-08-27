@@ -16,8 +16,8 @@ import qs.Ui
 Panel {
   id: root
 
-  moduleName: "bvisagie.you-got-mail"
-  ipcTarget: "bvisagie.you-got-mail"
+  moduleName: "yuri.you-got-mail"
+  ipcTarget: "yuri.you-got-mail"
 
   readonly property string script:
     Qt.resolvedUrl("bin/you-got-mail").toString().replace(/^file:\/\//, "")

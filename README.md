@@ -45,8 +45,8 @@ and `hey`.
 ## Install
 
 ```bash
-omarchy plugin add https://github.com/BVisagie/omarchy-you-got-mail.git --enable
-omarchy bar move bvisagie.you-got-mail --section right
+omarchy plugin add https://github.com/YuriRCosta/omarchy-you-got-mail.git --enable
+omarchy bar move yuri.you-got-mail --section right
 ```
 
 No sudo or pkexec is required. Omarchy clones the repo, validates the
@@ -56,18 +56,18 @@ you did not pass `--enable`.
 ## Update
 
 ```bash
-omarchy plugin update bvisagie.you-got-mail
+omarchy plugin update yuri.you-got-mail
 ```
 
 That fast-forwards the git checkout in
-`~/.config/omarchy/plugins/bvisagie.you-got-mail/`. It does not rewrite
+`~/.config/omarchy/plugins/yuri.you-got-mail/`. It does not rewrite
 `~/.config/omarchy-you-got-mail/` (accounts and secrets). See
 [CHANGELOG.md](CHANGELOG.md) for what changed in each release.
 
 ## Accounts
 
 ```bash
-PLUGIN=~/.config/omarchy/plugins/bvisagie.you-got-mail/bin/you-got-mail
+PLUGIN=~/.config/omarchy/plugins/yuri.you-got-mail/bin/you-got-mail
 
 $PLUGIN accounts add gmail
 $PLUGIN accounts add hey
@@ -116,7 +116,7 @@ to the current page.
 ## Configuration
 
 Page size and refresh interval are **bar widget settings** on the
-`bvisagie.you-got-mail` entry in `~/.config/omarchy/shell.json` (Omarchy's
+`yuri.you-got-mail` entry in `~/.config/omarchy/shell.json` (Omarchy's
 widget settings UI writes the same keys):
 
 | Key | Default | Range |
@@ -137,7 +137,7 @@ and provider environment.
 ## Removing it
 
 ```bash
-omarchy plugin remove bvisagie.you-got-mail
+omarchy plugin remove yuri.you-got-mail
 ```
 
 That does not delete `~/.config/omarchy-you-got-mail/` (accounts and

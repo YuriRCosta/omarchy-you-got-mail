@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "id": "bvisagie.you-got-mail",
+  "id": "yuri.you-got-mail",
   "name": "You've Got Mail",
   "version": "2.4.2",
-  "author": "BVisagie",
+  "author": "YuriRCosta",
   "description": "Unread mail only. Click a message to open it.",
-  "homepage": "https://github.com/BVisagie/omarchy-you-got-mail",
+  "homepage": "https://github.com/YuriRCosta/omarchy-you-got-mail",
   "license": "MIT",
   "kinds": [
     "bar-widget"

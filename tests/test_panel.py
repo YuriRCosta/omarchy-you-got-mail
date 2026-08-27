@@ -36,8 +36,8 @@ class PanelContractTests(unittest.TestCase):
 
     def test_readme_uses_https_install(self) -> None:
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
-        self.assertIn("https://github.com/BVisagie/omarchy-you-got-mail.git", readme)
-        self.assertIn("omarchy plugin update bvisagie.you-got-mail", readme)
+        self.assertIn("https://github.com/YuriRCosta/omarchy-you-got-mail.git", readme)
+        self.assertIn("omarchy plugin update yuri.you-got-mail", readme)
         self.assertIn("~/.bun/bin", readme)
         self.assertIn("YOU_GOT_MAIL_IMAP_PASSWORD", readme)
         self.assertIn("gws auth setup", readme)

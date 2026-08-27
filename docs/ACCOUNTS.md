@@ -4,7 +4,7 @@ You've Got Mail shows **one unread pile** across every account you add.
 The panel does not change: unread only, click to open.
 
 ```bash
-PLUGIN=~/.config/omarchy/plugins/bvisagie.you-got-mail/bin/you-got-mail
+PLUGIN=~/.config/omarchy/plugins/yuri.you-got-mail/bin/you-got-mail
 
 $PLUGIN accounts           # list
 $PLUGIN accounts add       # interactive
