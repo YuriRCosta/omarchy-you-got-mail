@@ -361,9 +361,7 @@ Panel {
           font.family: root.fontFamily
           font.pixelSize: Style.bar.iconFont
           renderType: Text.NativeRendering
-          color: root.alerting ? Color.accent : button.foreground
-
-          Behavior on color { ColorAnimation { duration: 120 } }
+          color: button.foreground
         }
       }
     }

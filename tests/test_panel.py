@@ -53,9 +53,8 @@ class PanelContractTests(unittest.TestCase):
 
     def test_bar_icon_uses_adaptive_colors(self) -> None:
         self.assertNotIn("active: root.opened", self.qml)
-        self.assertIn("color: root.alerting ? Color.accent : button.foreground", self.qml)
+        self.assertIn("color: button.foreground", self.qml)
         self.assertIn("alerting: hasUnread && reachable", self.qml)
-        self.assertIn("Color.accent", self.qml)
         self.assertNotIn("button.activeColor", self.qml)
         self.assertNotIn("color: Color.background", self.qml)
         self.assertNotIn(
