@@ -55,7 +55,7 @@ class PanelContractTests(unittest.TestCase):
         self.assertNotIn("active: root.opened", self.qml)
         self.assertIn("color: button.foreground", self.qml)
         self.assertIn("(root.hasUnread && root.reachable)", self.qml)
-        self.assertIn("color: Qt.rgba(button.foreground.r, button.foreground.g,", self.qml)
+        self.assertIn("color: Color.accent", self.qml)
         self.assertNotIn("button.activeColor", self.qml)
         self.assertNotIn("color: Color.background", self.qml)
         self.assertNotIn(

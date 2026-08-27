@@ -230,8 +230,9 @@ class ManifestAndHelpTests(unittest.TestCase):
         data = json.loads((ROOT / "manifest.json").read_text(encoding="utf-8"))
         self.assertEqual(data["version"], "2.4.2")
         keys = {item["key"] for item in data["barWidget"]["schema"]}
-        self.assertEqual(keys, {"max", "refreshIntervalSec"})
+        self.assertEqual(keys, {"max", "refreshIntervalSec", "badge"})
         self.assertEqual(data["barWidget"]["defaults"]["max"], 25)
+        self.assertEqual(data["barWidget"]["defaults"]["badge"], "Dot")
 
     def test_cli_help_documents_limit(self) -> None:
         import cli

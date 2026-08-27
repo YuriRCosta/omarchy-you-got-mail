@@ -21,7 +21,8 @@
     "defaultSection": "right",
     "defaults": {
       "max": 25,
-      "refreshIntervalSec": 60
+      "refreshIntervalSec": 60,
+      "badge": "Dot"
     },
     "schema": [
       {
@@ -41,6 +42,18 @@
         "max": 3600,
         "step": 15,
         "defaultValue": 60
+      },
+      {
+        "key": "badge",
+        "type": "enum",
+        "label": "Marcador de nao lidas",
+        "options": [
+          "Dot",
+          "Count",
+          "None"
+        ],
+        "defaultValue": "Dot",
+        "description": "Dot desenha um ponto sobre o envelope; Count desenha o numero. Em barra vertical o ponto cabe sem esticar o slot."
       }
     ]
   }

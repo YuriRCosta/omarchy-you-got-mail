@@ -59,26 +59,15 @@ Panel {
   readonly property bool hasUnread: unread > 0
 
   readonly property bool vertical: bar ? bar.vertical === true : false
-  readonly property int badgeHeight: Style.space(12)
-  readonly property int badgeGap: Style.space(3)
+  readonly property string badgeMode: setting("badge", "Dot")
+  readonly property bool showDot: badgeMode === "Dot" && badgeCount > 0 && reachable
+  readonly property bool showCount: badgeMode === "Count" && badgeCount > 0 && reachable
 
-  readonly property int badgeIdealWidth: badgeCount > 0
-    ? Math.max(badgeHeight, String(badgeCount).length * Style.space(6) + Style.space(8))
-    : 0
-  // Numa barra vertical o eixo curto e a largura da barra, entao o pill nao
-  // pode passar dela: sem esse teto a contagem vaza para fora e some.
-  readonly property int badgeWidth: vertical && bar
-    ? Math.min(badgeIdealWidth, bar.barSize - Style.space(6))
-    : badgeIdealWidth
-
-  readonly property int barContentWidth: vertical
-    ? Math.max(Style.bar.iconFont, badgeWidth)
-    : Style.bar.iconFont + badgeWidth + (badgeCount > 0 ? badgeGap : 0)
-  // Extensao ao longo do eixo da barra: empilhado quando vertical.
-  readonly property int barContentLength: vertical
-    ? Style.bar.iconFont + (badgeCount > 0 ? badgeHeight + badgeGap : 0)
-    : barContentWidth
-  readonly property int barSlot: barContentLength + Style.space(6)
+  // O marcador e desenhado sobre o envelope, nao ao lado: um slot que muda de
+  // tamanho a cada mensagem faz a barra inteira dancar, e numa barra vertical
+  // nao ha largura sobrando para ele crescer.
+  readonly property int barContentWidth: Style.bar.iconFont
+  readonly property int barSlot: barContentWidth + Style.space(6)
 
   implicitWidth: vertical ? (bar ? bar.barSize : Style.bar.sizeHorizontal) : barSlot
   implicitHeight: vertical ? barSlot : (bar ? bar.barSize : Style.bar.sizeHorizontal)
@@ -368,41 +357,14 @@ Panel {
 
     iconComponent: Component {
       Item {
-        Grid {
+        Text {
           anchors.centerIn: parent
-          columns: root.vertical ? 1 : 2
-          rows: root.vertical ? 2 : 1
-          spacing: root.badgeGap
-          horizontalItemAlignment: Grid.AlignHCenter
-          verticalItemAlignment: Grid.AlignVCenter
-
-          Text {
-            // U+F01EE envelope cheio quando ha mensagem, U+F01F0 vazado quando nao.
-            text: (root.hasUnread && root.reachable) ? "\udb80\uddee" : "\udb80\uddf0"
-            font.family: root.fontFamily
-            font.pixelSize: Style.bar.iconFont
-            renderType: Text.NativeRendering
-            color: button.foreground
-          }
-
-          Rectangle {
-            visible: root.reachable && root.badgeCount > 0
-            height: root.badgeHeight
-            width: root.badgeWidth
-            radius: height / 2
-            color: Qt.rgba(button.foreground.r, button.foreground.g,
-                           button.foreground.b, 0.14)
-
-            Text {
-              anchors.centerIn: parent
-              text: root.badgeCount
-              textFormat: Text.PlainText
-              font.family: root.fontFamily
-              font.pixelSize: Style.font.caption
-              renderType: Text.NativeRendering
-              color: button.foreground
-            }
-          }
+          // U+F01EE envelope cheio quando ha mensagem, U+F01F0 vazado quando nao.
+          text: (root.hasUnread && root.reachable) ? "\udb80\uddee" : "\udb80\uddf0"
+          font.family: root.fontFamily
+          font.pixelSize: Style.bar.iconFont
+          renderType: Text.NativeRendering
+          color: button.foreground
         }
       }
     }
@@ -415,6 +377,46 @@ Panel {
       } else {
         root.toggle()
       }
+    }
+  }
+
+  Rectangle {
+    id: unreadDot
+    visible: root.showDot
+    anchors.right: button.right
+    anchors.rightMargin: Style.space(2)
+    anchors.top: button.top
+    anchors.topMargin: Style.space(4)
+    width: Style.space(6)
+    height: width
+    radius: width / 2
+    color: Color.accent
+  }
+
+  Rectangle {
+    id: unreadCount
+    visible: root.showCount
+    anchors.right: button.right
+    anchors.rightMargin: Style.space(1)
+    anchors.top: button.top
+    anchors.topMargin: Style.space(2)
+    width: Math.max(unreadCountText.implicitWidth + Style.space(5), Style.space(11))
+    height: Style.space(11)
+    radius: height / 2
+    // Fundo translucido em cima da barra, nao Color.background: a barra pode
+    // ser transparente, e ai um fundo opaco recorta um buraco no papel.
+    color: Qt.rgba(button.foreground.r, button.foreground.g,
+                   button.foreground.b, 0.22)
+
+    Text {
+      id: unreadCountText
+      anchors.centerIn: parent
+      text: root.badgeCount > 99 ? "99+" : root.badgeCount
+      textFormat: Text.PlainText
+      font.family: root.fontFamily
+      font.pixelSize: Style.font.caption
+      renderType: Text.NativeRendering
+      color: button.foreground
     }
   }
 
