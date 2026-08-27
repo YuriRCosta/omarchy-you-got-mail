@@ -27,6 +27,7 @@ SKIP_ATTR = re.compile(
     re.I,
 )
 READ_ALL_BUDGET = 100
+SOCKET_TIMEOUT = 30
 UID_CHUNK = 80
 
 
@@ -122,7 +123,10 @@ def _connect(acc: dict, password: str) -> imaplib.IMAP4_SSL:
     if not host or not user or not password:
         die("IMAP host, username and password are required")
     ctx = ssl.create_default_context()
-    client = imaplib.IMAP4_SSL(host, port, ssl_context=ctx)
+    # Sem timeout no socket a conexao pendura ate o orquestrador matar o
+    # processo inteiro, e a conta aparece so como "timed out" sem dizer onde
+    # parou. Com o corte aqui a falha e do socket e chega nomeada.
+    client = imaplib.IMAP4_SSL(host, port, ssl_context=ctx, timeout=SOCKET_TIMEOUT)
     client.login(user, password)
     return client
 
