@@ -58,14 +58,30 @@ Panel {
   readonly property int badgeCount: unread
   readonly property bool hasUnread: unread > 0
 
-  readonly property int badgeWidth: badgeCount > 0
-    ? Math.max(Style.space(12), String(badgeCount).length * Style.space(6) + Style.space(8))
-    : 0
-  readonly property int barContentWidth: Style.bar.iconFont + badgeWidth + Style.space(5)
-  readonly property int barSlot: barContentWidth + Style.space(10)
+  readonly property bool vertical: bar ? bar.vertical === true : false
+  readonly property int badgeHeight: Style.space(12)
+  readonly property int badgeGap: Style.space(3)
 
-  implicitWidth: bar && bar.vertical ? (bar ? bar.barSize : Style.bar.sizeHorizontal) : barSlot
-  implicitHeight: bar && bar.vertical ? barSlot : (bar ? bar.barSize : Style.bar.sizeHorizontal)
+  readonly property int badgeIdealWidth: badgeCount > 0
+    ? Math.max(badgeHeight, String(badgeCount).length * Style.space(6) + Style.space(8))
+    : 0
+  // Numa barra vertical o eixo curto e a largura da barra, entao o pill nao
+  // pode passar dela: sem esse teto a contagem vaza para fora e some.
+  readonly property int badgeWidth: vertical && bar
+    ? Math.min(badgeIdealWidth, bar.barSize - Style.space(6))
+    : badgeIdealWidth
+
+  readonly property int barContentWidth: vertical
+    ? Math.max(Style.bar.iconCanvas, badgeWidth)
+    : Style.bar.iconFont + badgeWidth + (badgeCount > 0 ? badgeGap : 0)
+  // Extensao ao longo do eixo da barra: empilhado quando vertical.
+  readonly property int barContentLength: vertical
+    ? Style.bar.iconCanvas + (badgeCount > 0 ? badgeHeight + badgeGap : 0)
+    : barContentWidth
+  readonly property int barSlot: barContentLength + Style.space(6)
+
+  implicitWidth: vertical ? (bar ? bar.barSize : Style.bar.sizeHorizontal) : barSlot
+  implicitHeight: vertical ? barSlot : (bar ? bar.barSize : Style.bar.sizeHorizontal)
 
   function validToken(t) {
     return /^[A-Za-z0-9_-]{1,512}$/.test(String(t))
@@ -352,12 +368,15 @@ Panel {
 
     iconComponent: Component {
       Item {
-        Row {
+        Grid {
           anchors.centerIn: parent
-          spacing: Style.space(5)
+          columns: root.vertical ? 1 : 2
+          rows: root.vertical ? 2 : 1
+          spacing: root.badgeGap
+          horizontalItemAlignment: Grid.AlignHCenter
+          verticalItemAlignment: Grid.AlignVCenter
 
           MailSlotIcon {
-            anchors.verticalCenter: parent.verticalCenter
             iconSize: Style.bar.iconCanvas
             color: button.foreground
             flagColor: button.foreground
@@ -365,9 +384,8 @@ Panel {
           }
 
           Rectangle {
-            anchors.verticalCenter: parent.verticalCenter
             visible: root.reachable && root.badgeCount > 0
-            height: Style.space(12)
+            height: root.badgeHeight
             width: root.badgeWidth
             radius: height / 2
             color: Qt.rgba(button.foreground.r, button.foreground.g,
