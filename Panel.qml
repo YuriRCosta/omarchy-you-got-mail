@@ -72,11 +72,11 @@ Panel {
     : badgeIdealWidth
 
   readonly property int barContentWidth: vertical
-    ? Math.max(Style.bar.iconCanvas, badgeWidth)
+    ? Math.max(Style.bar.iconFont, badgeWidth)
     : Style.bar.iconFont + badgeWidth + (badgeCount > 0 ? badgeGap : 0)
   // Extensao ao longo do eixo da barra: empilhado quando vertical.
   readonly property int barContentLength: vertical
-    ? Style.bar.iconCanvas + (badgeCount > 0 ? badgeHeight + badgeGap : 0)
+    ? Style.bar.iconFont + (badgeCount > 0 ? badgeHeight + badgeGap : 0)
     : barContentWidth
   readonly property int barSlot: barContentLength + Style.space(6)
 
@@ -376,11 +376,13 @@ Panel {
           horizontalItemAlignment: Grid.AlignHCenter
           verticalItemAlignment: Grid.AlignVCenter
 
-          MailSlotIcon {
-            iconSize: Style.bar.iconCanvas
+          Text {
+            // U+F01EE envelope cheio quando ha mensagem, U+F01F0 vazado quando nao.
+            text: (root.hasUnread && root.reachable) ? "\udb80\uddee" : "\udb80\uddf0"
+            font.family: root.fontFamily
+            font.pixelSize: Style.bar.iconFont
+            renderType: Text.NativeRendering
             color: button.foreground
-            flagColor: button.foreground
-            hasMail: root.hasUnread && root.reachable
           }
 
           Rectangle {
