@@ -195,6 +195,19 @@ Panel {
     close()
   }
 
+  // Marca sem abrir: o cursor fica no lugar e a proxima mensagem sobe para
+  // ele, entao da para limpar varias seguidas sem tirar a mao do teclado.
+  function markCursorRead() {
+    if (root.markAllBusy) return
+    if (cursor < 0 || cursor >= messages.length) return
+    var message = messages[cursor]
+    if (!message || !validId(message.id)) return
+    dismissLocal(message.id)
+    pendingId = message.id
+    readProc.command = [root.script, "read", message.id]
+    readProc.running = true
+  }
+
   function cancelMarkAllConfirm() {
     markAllArmed = false
     if (markAllArmTimer.running) markAllArmTimer.stop()
@@ -406,7 +419,9 @@ Panel {
           root.openMessage(root.messages[root.cursor])
         else if (t === "i" && root.hasOpenableInbox)
           root.openSearch()
-        else if (t === "a")
+        else if (t === "a" && onCursor)
+          root.markCursorRead()
+        else if (t === "A")
           root.requestMarkAll()
         else if (t === "n")
           root.goNextPage()
@@ -468,7 +483,7 @@ Panel {
                 ? "Marking unread mail as read…"
                 : (root.markAllArmed
                   ? "Click again to confirm"
-                  : "Mark all unread as read (a)")
+                  : "Mark all unread as read (A)")
               foreground: root.foreground
               hoverColor: root.accent
               fontFamily: root.fontFamily

@@ -68,7 +68,7 @@ class PanelContractTests(unittest.TestCase):
         )
 
     def test_mark_all_confirm_and_busy(self) -> None:
-        self.assertIn("Mark all unread as read (a)", self.qml)
+        self.assertIn("Mark all unread as read (A)", self.qml)
         self.assertIn("Click again to confirm", self.qml)
         self.assertIn("Marking unread mail as read…", self.qml)
         self.assertIn('t === "a"', self.qml)
