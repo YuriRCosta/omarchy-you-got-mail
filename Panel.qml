@@ -59,13 +59,10 @@ Panel {
   readonly property bool hasUnread: unread > 0
 
   readonly property bool vertical: bar ? bar.vertical === true : false
-  readonly property string badgeMode: setting("badge", "Dot")
-  readonly property bool showDot: badgeMode === "Dot" && badgeCount > 0 && reachable
-  readonly property bool showCount: badgeMode === "Count" && badgeCount > 0 && reachable
-
-  // O marcador e desenhado sobre o envelope, nao ao lado: um slot que muda de
-  // tamanho a cada mensagem faz a barra inteira dancar, e numa barra vertical
-  // nao ha largura sobrando para ele crescer.
+  // O estado vive no proprio envelope - forma e cor - em vez de um marcador
+  // ao lado: um slot que muda de tamanho a cada mensagem faz a barra dancar,
+  // e numa barra vertical nao ha largura sobrando para ele crescer.
+  readonly property bool alerting: hasUnread && reachable
   readonly property int barContentWidth: Style.bar.iconFont
   readonly property int barSlot: barContentWidth + Style.space(6)
 
@@ -360,11 +357,13 @@ Panel {
         Text {
           anchors.centerIn: parent
           // U+F01EE envelope cheio quando ha mensagem, U+F01F0 vazado quando nao.
-          text: (root.hasUnread && root.reachable) ? "\udb80\uddee" : "\udb80\uddf0"
+          text: root.alerting ? "\udb80\uddee" : "\udb80\uddf0"
           font.family: root.fontFamily
           font.pixelSize: Style.bar.iconFont
           renderType: Text.NativeRendering
-          color: button.foreground
+          color: root.alerting ? Color.accent : button.foreground
+
+          Behavior on color { ColorAnimation { duration: 120 } }
         }
       }
     }
@@ -377,46 +376,6 @@ Panel {
       } else {
         root.toggle()
       }
-    }
-  }
-
-  Rectangle {
-    id: unreadDot
-    visible: root.showDot
-    anchors.right: button.right
-    anchors.rightMargin: Style.space(2)
-    anchors.top: button.top
-    anchors.topMargin: Style.space(4)
-    width: Style.space(6)
-    height: width
-    radius: width / 2
-    color: Color.accent
-  }
-
-  Rectangle {
-    id: unreadCount
-    visible: root.showCount
-    anchors.right: button.right
-    anchors.rightMargin: Style.space(1)
-    anchors.top: button.top
-    anchors.topMargin: Style.space(2)
-    width: Math.max(unreadCountText.implicitWidth + Style.space(5), Style.space(11))
-    height: Style.space(11)
-    radius: height / 2
-    // Fundo translucido em cima da barra, nao Color.background: a barra pode
-    // ser transparente, e ai um fundo opaco recorta um buraco no papel.
-    color: Qt.rgba(button.foreground.r, button.foreground.g,
-                   button.foreground.b, 0.22)
-
-    Text {
-      id: unreadCountText
-      anchors.centerIn: parent
-      text: root.badgeCount > 99 ? "99+" : root.badgeCount
-      textFormat: Text.PlainText
-      font.family: root.fontFamily
-      font.pixelSize: Style.font.caption
-      renderType: Text.NativeRendering
-      color: button.foreground
     }
   }
 
