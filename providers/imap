@@ -22,6 +22,10 @@ SKIP_FOLDER = re.compile(
     r"(^|/)(trash|junk|spam|drafts?|sent|bin|deleted|queue|outbox)(/|$)",
     re.I,
 )
+SKIP_ATTR = re.compile(
+    r"\\(All|Archive|Sent|Trash|Drafts|Junk|Flagged|Important)\b",
+    re.I,
+)
 READ_ALL_BUDGET = 100
 UID_CHUNK = 80
 
@@ -88,6 +92,11 @@ def _folders(client: imaplib.IMAP4) -> list[str]:
             continue
         line = raw.decode("utf-8", "replace") if isinstance(raw, bytes) else str(raw)
         if "\\Noselect" in line:
+            continue
+        # RFC 6154: pular por atributo, nao por nome. O regex de nome so
+        # casa em ingles, entao numa conta em portugues "[Gmail]/Todos os
+        # e-mails" passava e cada mensagem era contada duas vezes.
+        if SKIP_ATTR.search(line[: line.find(")") + 1]):
             continue
         # The mailbox name is the last quoted token, or the last word.
         m = re.search(r' "((?:\\.|[^"\\])*)"$', line)
