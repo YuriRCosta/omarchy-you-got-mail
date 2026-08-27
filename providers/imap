@@ -82,7 +82,12 @@ def _snippet(msg: Message) -> str:
     return text[:180]
 
 
-def _folders(client: imaplib.IMAP4) -> list[str]:
+def _folders(client: imaplib.IMAP4, acc: dict | None = None) -> list[str]:
+    # Uma lista explicita e a palavra final: quem escreve "folders" quer
+    # exatamente aquelas pastas, mesmo que uma delas casaria com os filtros.
+    chosen = [str(f).strip() for f in ((acc or {}).get("folders") or []) if str(f).strip()]
+    if chosen:
+        return chosen
     typ, rows = client.list()
     if typ != "OK" or not rows:
         return ["INBOX"]
@@ -134,7 +139,7 @@ def cmd_list(acc: dict, password: str, limit: int) -> None:
     messages = []
     unread = 0
     try:
-        for folder in _folders(client):
+        for folder in _folders(client, acc):
             typ, _ = client.select(folder, readonly=True)
             if typ != "OK":
                 continue
@@ -224,9 +229,9 @@ def _chunked(items: list[str], size: int) -> list[list[str]]:
     return [items[i : i + size] for i in range(0, len(items), size)]
 
 
-def _snapshot_unseen(client: imaplib.IMAP4) -> list[tuple[str, list[str]]]:
+def _snapshot_unseen(client: imaplib.IMAP4, acc: dict | None = None) -> list[tuple[str, list[str]]]:
     snapshots: list[tuple[str, list[str]]] = []
-    for folder in _folders(client):
+    for folder in _folders(client, acc):
         typ, _ = client.select(folder, readonly=True)
         if typ != "OK":
             continue
@@ -251,7 +256,7 @@ def cmd_read_all(acc: dict, password: str) -> None:
     marked = 0
     deadline = time.monotonic() + READ_ALL_BUDGET
     try:
-        snapshots = _snapshot_unseen(client)
+        snapshots = _snapshot_unseen(client, acc)
         for folder, uids in snapshots:
             if time.monotonic() > deadline:
                 emit({"ok": False, "marked": marked, "error": "timed out marking mail as read"})

@@ -187,6 +187,42 @@ class OutlookReadAllTests(unittest.TestCase):
         self.assertEqual(len(chunks[1]), 5)
 
 
+class ImapFolderSelectionTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.imap = load_provider("imap")
+
+    LIST_ROWS = [
+        b'(\\HasNoChildren) "/" "INBOX"',
+        b'(\\HasNoChildren) "/" "Promocoes"',
+        b'(\\All \\HasNoChildren) "/" "[Gmail]/Todos os e-mails"',
+        b'(\\HasNoChildren \\Sent) "/" "[Gmail]/E-mails enviados"',
+    ]
+
+    class FakeClient:
+        def __init__(self, rows):
+            self.rows = rows
+
+        def list(self):
+            return "OK", self.rows
+
+    def test_discovery_skips_special_use_folders(self) -> None:
+        client = self.FakeClient(self.LIST_ROWS)
+        self.assertEqual(self.imap._folders(client), ["INBOX", "Promocoes"])
+
+    def test_explicit_folders_win_over_discovery(self) -> None:
+        client = self.FakeClient(self.LIST_ROWS)
+        self.assertEqual(
+            self.imap._folders(client, {"folders": ["INBOX"]}), ["INBOX"]
+        )
+
+    def test_blank_entries_fall_back_to_discovery(self) -> None:
+        client = self.FakeClient(self.LIST_ROWS)
+        self.assertEqual(
+            self.imap._folders(client, {"folders": ["  "]}), ["INBOX", "Promocoes"]
+        )
+
+
 class ImapReadAllTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:

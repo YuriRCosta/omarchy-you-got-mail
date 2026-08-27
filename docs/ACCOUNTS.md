@@ -234,9 +234,22 @@ host, port (993), username, password or app password
 webmail URL (optional) — opened when you click a message
 ```
 
-Unread is every folder except trash, junk/spam, drafts, sent, and similar.
-There is no standard “open this IMAP message in the browser” URL; if you
-leave webmail empty, click still marks the message read.
+Unread is every folder the server does not flag as trash, junk/spam,
+drafts, sent, archive/all, starred, or important (RFC 6154 attributes, so
+localised mailbox names are handled too).
+
+To read only certain folders, add `folders` to the account in
+`accounts.json`. An explicit list wins over discovery — useful on Gmail
+over IMAP, where a filter label would otherwise count toward the badge:
+
+```json
+{ "id": "work", "provider": "imap", "host": "imap.gmail.com",
+  "user": "you@gmail.com", "folders": ["INBOX"] }
+```
+
+Omit the key to keep discovery. There is no standard “open this IMAP
+message in the browser” URL; if you leave webmail empty, click still
+marks the message read.
 
 `YOU_GOT_MAIL_IMAP_PASSWORD` can supply the password for automated tests.
 Interactive `accounts add imap` still writes `secrets/<id>.json`.
