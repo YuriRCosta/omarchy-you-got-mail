@@ -79,6 +79,14 @@ Panel {
     return /^https:\/\/[A-Za-z0-9.-]+(?::\d+)?(?:[/?#][^\s]*)?$/.test(String(url))
   }
 
+  // O provedor IMAP generico nao gera permalink por mensagem: ele repete a
+  // URL do webmail em toda linha. Abrir o cliente local e mais util que abrir
+  // a home do webmail.
+  function openMailClient() {
+    Util.execArgv(["uwsm", "app", "--", "org.mozilla.Thunderbird.desktop"])
+    return true
+  }
+
   function openBrowser(url) {
     if (!validUrl(url)) return false
     // The bar process is not a login shell; bare xdg-open is silent.
@@ -169,10 +177,7 @@ Panel {
   function openMessage(message) {
     if (root.markAllBusy) return
     if (!message || !validId(message.id)) return
-    var url = message.url || ""
-    if (url !== "") {
-      if (!openBrowser(url)) return
-    }
+    openMailClient()
     dismissLocal(message.id)
     pendingId = message.id
     readProc.command = [root.script, "read", message.id]
