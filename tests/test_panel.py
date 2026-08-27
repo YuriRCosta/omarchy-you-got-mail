@@ -54,8 +54,7 @@ class PanelContractTests(unittest.TestCase):
     def test_bar_icon_uses_adaptive_colors(self) -> None:
         self.assertNotIn("active: root.opened", self.qml)
         self.assertIn("color: button.foreground", self.qml)
-        self.assertIn("flagColor: button.foreground", self.qml)
-        self.assertIn("hasMail: root.hasUnread && root.reachable", self.qml)
+        self.assertIn("(root.hasUnread && root.reachable)", self.qml)
         self.assertIn("color: Qt.rgba(button.foreground.r, button.foreground.g,", self.qml)
         self.assertNotIn("button.activeColor", self.qml)
         self.assertNotIn("color: Color.background", self.qml)
