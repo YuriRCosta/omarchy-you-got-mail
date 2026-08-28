@@ -198,7 +198,7 @@ Panel {
   // Marca sem abrir: o cursor fica no lugar e a proxima mensagem sobe para
   // ele, entao da para limpar varias seguidas sem tirar a mao do teclado.
   function markCursorRead() {
-    if (root.markAllBusy) return
+    if (root.markAllBusy || readProc.running) return
     if (cursor < 0 || cursor >= messages.length) return
     var message = messages[cursor]
     if (!message || !validId(message.id)) return
@@ -294,6 +294,9 @@ Panel {
       accountCount = data.accountCount || 0
       nextPage = validToken(data.nextPage) ? data.nextPage : ""
       if (cursor > messages.length - 1) cursor = messages.length - 1
+      // Sem cursor as teclas que agem sobre "a mensagem atual" nao tem alvo, e
+      // abrir o painel e apertar "a" nao fazia nada ate mexer o mouse.
+      if (cursor < 0 && messages.length > 0) cursor = 0
     } catch (e) {
       reachable = false
       errorText = "unexpected output from you-got-mail"
