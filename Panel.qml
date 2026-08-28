@@ -45,6 +45,8 @@ Panel {
   property bool markAllBusy: false
   property string actionWarning: ""
   property int cursor: -1
+  property bool refreshPending: false
+  property bool reconciling: false
 
   property string pageToken: ""
   property var pageStack: []
@@ -109,7 +111,11 @@ Panel {
   }
 
   function refresh() {
-    if (listProc.running || root.markAllBusy) return
+    if (root.markAllBusy) return
+    // Um refresh pedido durante outro era descartado em silencio, e a proxima
+    // chance era so no tick seguinte do timer.
+    if (listProc.running) { root.refreshPending = true; return }
+    root.refreshPending = false
     var argv = [root.script, "list", "--limit", String(root.pageSize)]
     if (pageToken !== "" && validToken(pageToken)) argv.push("--page", pageToken)
     listProc.command = argv
@@ -235,6 +241,10 @@ Panel {
       if (!(marked > 0)) marked = 0
       if (data.ok === true) {
         root.actionWarning = data.warning || ""
+        // A lista fica atenuada ate o provedor responder. Nao zeramos os
+        // numeros aqui de proposito: a contagem exibida sempre vem do servidor,
+        // nunca de um palpite local.
+        root.reconciling = true
         firstPage()
         refresh()
         return
@@ -281,6 +291,7 @@ Panel {
   function applyPayload(text) {
     try {
       var data = JSON.parse(text)
+      reconciling = false
       reachable = data.ok === true
       errorText = data.error || ""
       warningText = reachable ? (data.warning || "") : ""
@@ -298,6 +309,7 @@ Panel {
       // abrir o painel e apertar "a" nao fazia nada ate mexer o mouse.
       if (cursor < 0 && messages.length > 0) cursor = 0
     } catch (e) {
+      reconciling = false
       reachable = false
       errorText = "unexpected output from you-got-mail"
     }
@@ -322,6 +334,7 @@ Panel {
     stdout: StdioCollector {
       onStreamFinished: root.applyPayload(text)
     }
+    onExited: if (root.refreshPending) root.refresh()
   }
 
   Process {
@@ -593,14 +606,17 @@ Panel {
 
         Item {
           width: parent.width
-          height: root.markAllBusy ? markAllBusyLabel.implicitHeight + Style.space(6) : 0
-          visible: root.markAllBusy
+          height: (root.markAllBusy || root.reconciling)
+            ? markAllBusyLabel.implicitHeight + Style.space(6) : 0
+          visible: root.markAllBusy || root.reconciling
 
           Text {
             id: markAllBusyLabel
             anchors.verticalCenter: parent.verticalCenter
             width: parent.width
-            text: "Marking unread mail as read…"
+            text: root.markAllBusy
+              ? "Marking unread mail as read…"
+              : "Atualizando a lista…"
             textFormat: Text.PlainText
             elide: Text.ElideRight
             font.family: root.fontFamily
@@ -614,7 +630,7 @@ Panel {
           width: parent.width
           visible: root.messages.length > 0
           clip: true
-          opacity: root.markAllBusy ? 0.4 : 1
+          opacity: (root.markAllBusy || root.reconciling) ? 0.4 : 1
           enabled: !root.markAllBusy
           model: root.messages
           spacing: Style.space(1)

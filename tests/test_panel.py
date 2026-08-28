@@ -78,7 +78,7 @@ class PanelContractTests(unittest.TestCase):
         self.assertIn('readAllProc.command = [root.script, "read-all"]', self.qml)
         self.assertIn("applyReadAllPayload", self.qml)
         self.assertIn("root.actionWarning", self.qml)
-        self.assertIn("opacity: root.markAllBusy ? 0.4 : 1", self.qml)
+        self.assertIn("opacity: (root.markAllBusy || root.reconciling) ? 0.4 : 1", self.qml)
         self.assertNotIn("unread = 0", self.qml)
         self.assertNotIn("messages = []", self.qml)
 
