@@ -571,6 +571,26 @@ Panel {
           }
         }
 
+        // A confirmacao dupla so aparecia na troca de icone do botao do header,
+        // pequena demais para quem disparou pelo teclado e nao esta olhando ali.
+        Item {
+          width: parent.width
+          height: root.markAllArmed ? markAllArmLabel.implicitHeight + Style.space(6) : 0
+          visible: root.markAllArmed
+
+          Text {
+            id: markAllArmLabel
+            anchors.verticalCenter: parent.verticalCenter
+            width: parent.width
+            text: "Aperte A de novo para marcar as " + root.unread + " como lidas"
+            textFormat: Text.PlainText
+            elide: Text.ElideRight
+            font.family: root.fontFamily
+            font.pixelSize: Style.font.caption
+            color: bar ? bar.urgent : Color.urgent
+          }
+        }
+
         Item {
           width: parent.width
           height: root.markAllBusy ? markAllBusyLabel.implicitHeight + Style.space(6) : 0
